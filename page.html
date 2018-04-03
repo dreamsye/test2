@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<script src="jquery.min.js"></script>
+		
+		<style>
+			#shopbtn{
+				font-size: 30px;
+				padding: 5px 10px;
+				border: 1px solid red;
+				margin-bottom: 20px;
+				cursor: pointer;
+			}
+			p,button{
+				margin-left:80px;
+			}
+			img{
+				margin-left:40px ;
+			} 
+		</style>
+		<script src="cookie.js"></script>
+	</head>
+	<body>
+		
+		<div class="shopinfo">
+			<!--<img src="img/1.jpg" alt="" />
+			<p>小米1</p>
+			<p>333</p>
+			<button>购买</button>-->
+		</div>
+		
+			
+	</body>
+</html>
+<script type="text/javascript">
+ 	//页面加载获取路径信息
+ 	var str = location.href;//http://localhost/shopCart1801/page.html?id=shop13&tname=classify002
+ 	// 取出 id和tname的值
+ 	str = str.split("?")[1]; 
+ 	var arr = str.split("&");
+ 	var tid = arr[0].split("=")[1];
+ 	var tname = arr[1].split("=")[1];
+ 	var html = "";
+ 	//console.log(id,tname);
+ 	//ajax请求数据
+ 	$.ajax({
+ 		type:"get",
+ 		url:"data.json",
+ 		success:function(json){
+ 			//得到json中 tname 下的list
+ 			var arr = json[tname].list;
+ 			//找arr中哪一个对象的id是  tid
+ 			for( var i = 0 ; i < arr.length ; i++ ){
+ 				if( tid == arr[i].id ){
+ 					html = `<img src="img/${arr[i].src}" alt="" />
+							<p>${arr[i].name}</p>
+							<p>${arr[i].price}</p>
+							<button>购买</button>`;
+ 				}
+ 			}
+ 			$(".shopinfo").html(html);
+ 		}
+ 	});
+</script>

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<link rel="stylesheet" href="main.css" />
+		<script src="jquery.min.js"></script>
+		<script src="cookie.js"></script>
+		<style>
+			.header{
+				height: 40px;
+				width: 900px;
+				margin: 0 auto 50px;
+			}
+		</style>
+	</head>
+	<body>		 
+		<div class="header">
+			<span id="s"><a href="login.html">登录 / 注册</a></span>
+			<span id="s1">
+				
+			</span>
+		</div>
+		<div class="nav clearfix">
+			<!--<span>小米手机</span>-->
+		</div>		
+		<ul class="shoplist clearfix">
+			<!--<li>
+				<a href="page.html">
+					<img src="img/1.jpg" alt="" />
+					<p>小米1</p>
+					<p>890</p>
+				</a>
+				<button>加入购物车</button>
+			</li>-->
+		</ul>	
+	</body>
+</html>
+<script type="text/javascript">
+	var deff = $.ajax({
+		type:"get",
+		url : "data.json"
+	})
+	deff.done(function(json){
+		var titleStr = "";
+		var conStr = "";
+		for( var attr in json ){
+			//console.log(attr);
+			titleStr += `<span data-cname="${attr}">${json[attr].name}</span>`;
+			for( var i = 0 ; i < json[attr].list.length ; i++ ){
+				var pro = json[attr].list[i];
+				conStr += `<li>
+								<a href="page.html?id=${pro.id}&tname=${attr}">
+									<img src="img/${pro.src}" alt="" />
+									<p>${pro.name}</p>
+									<p>${pro.price}</p>
+								</a>
+								<button data-id="${pro.id}" data-name="${pro.name}" data-price="${pro.price}" data-src="${pro.src}">加入购物车</button>
+							</li>`;
+			}
+		}
+		$(".nav").html( titleStr );
+		$(".shoplist").html(conStr);
+		
+		//鼠标移入类别上 显示对应类别数据
+		$(".nav span").mouseenter(function(){
+			//将json中对应的类别数据显示到  shoplist
+			var cname = $(this).data("cname");//data()方法可以直接获取data-*自定义属性
+			var page = "";
+			for( var i = 0 ; i < json[cname].list.length ; i++ ){
+				var item = json[cname].list[i];
+				page += `<li>
+								<a href="page.html?id=${item.id}&tname=${cname}">
+									<img src="img/${item.src}" alt="" />
+									<p>${item.name}</p>
+									<p>${item.price}</p>
+								</a>
+								<button data-id="${item.id}" data-name="${item.name}" data-price="${item.price}" data-src="${item.src}">加入购物车</button>
+							</li>`;
+			}
+			$(".shoplist").html(page);
+		})
+	})
+	
+	//添加商品功能
+	$(".shoplist").on("click","button",function(){
+		//为了购物车中能够存储多件商品   需要将多个商品对象存入到一个数组中[{},{},{},...]
+		var arr = [];
+		 
+		//一个商品信息
+		var json = {
+			id: $(this).data("id"),
+			name:$(this).data("name"),
+			price:$(this).data("price"),
+			src:$(this).data("src"),
+			count:1
+		}
+		//console.log(json);
+		//将cookie中的数据取出存入到数组中
+		var oldCookie = getCookie("shoplist");
+		var flag = true;//值为真  就执行push操作
+		if( oldCookie.length!=0 ){ //有cookie
+			arr = oldCookie;
+			//如果有cookie数据 判断 当前点击的商品在arr中是否存在  如果存在就count++
+			for( var i = 0 ; i < arr.length ; i++ ){
+				if( json.id == arr[i].id && json.name == arr[i].name){
+					arr[i].count++;
+					flag = false;
+					break;
+				}
+			}
+		}
+		if( flag ){
+			//将商品存入到数组
+			arr.push(json);
+		}
+		
+		//将数组存入到cookie中 
+		setCookie("shoplist",JSON.stringify(arr));
+		if( !confirm("确定-继续购物;取消-跳转到购物车") ){
+			location.href = "shopcar.html";
+		}
+	})
+</script>
